@@ -1,0 +1,39 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <stdint.h>
+
+int main(int argc, char* argv[]) {
+    int port, socket_fd;
+
+    if (argc < 2) {
+        fprintf(stderr, "Argument PORT is required\n");
+    } else if (argc == 2) {
+        port = atoi(argv[1]);
+
+        if (port > UINT16_MAX) {
+            fprintf(stderr, "PORT needs to be a 16 bit number\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    
+    socket_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (socket_fd < 0) {
+        perror("(socket)");
+        exit(EXIT_FAILURE);
+    }
+
+    const struct sockaddr_in app_addr = {
+        .sin_family = AF_INET,
+        .sin_addr = htonl(INADDR_ANY), // Set dinamically
+        .sin_port = htons(port)
+    };
+
+    if(bind(socket_fd, (struct sockaddr*)&app_addr, sizeof(app_addr)) < 0) {
+        perror("(bind)");
+        exit(EXIT_FAILURE);
+    }
+
+    return 0;
+}
