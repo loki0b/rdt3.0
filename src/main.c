@@ -4,8 +4,11 @@
 #include <netinet/in.h>
 #include <stdint.h>
 
+int  socket_fd;
+struct sockaddr_in app_addr;
+
 int main(int argc, char* argv[]) {
-    int port, socket_fd;
+    int port;
 
     if (argc < 2) {
         fprintf(stderr, "Argument PORT is required\n");
@@ -24,11 +27,9 @@ int main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    const struct sockaddr_in app_addr = {
-        .sin_family = AF_INET,
-        .sin_addr = htonl(INADDR_ANY), // Set dinamically
-        .sin_port = htons(port)
-    };
+    app_addr.sin_family = AF_INET,
+    app_addr.sin_addr.s_addr = htonl(INADDR_ANY), // Set dinamically
+    app_addr.sin_port = htons(port);
 
     if(bind(socket_fd, (struct sockaddr*)&app_addr, sizeof(app_addr)) < 0) {
         perror("(bind)");
