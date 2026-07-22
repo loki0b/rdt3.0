@@ -3,6 +3,20 @@
 #include <netinet/in.h>
 #include <stdlib.h>
 
+void rdt_send(FILE* data, char* filename) {
+    if (data) {
+        struct rdt_packet pkt;
+
+        while (!feof(data)) {
+            pkt = make_packet(data);
+            pkt.seq_num = 0;
+            pkt.ack_num = 0;
+
+            udt_send(&pkt);
+        }
+    }
+}
+
 struct rdt_packet make_packet(FILE* data) {  
     struct rdt_packet pkt;
 
@@ -16,7 +30,7 @@ struct rdt_packet make_packet(FILE* data) {
     return pkt;
 }
 
-short make_checksum(unsigned char* buffer, size_t size) {
+unsigned short make_checksum(unsigned char* buffer, size_t size) {
     return 0;
 }
 
@@ -28,4 +42,25 @@ void udt_send(const struct rdt_packet* pkt) {
         perror("(sendto)");
         exit(EXIT_FAILURE);
     }
+}
+
+// Validate checksum
+int is_corrupt(struct rdt_packet* pkt) {
+    if (pkt == NULL) return -1;
+
+    return (pkt->checksum == make_checksum(pkt->data, pkt->payload_size)) ? 1 : 0;
+}
+
+// Check if ack_num is x
+int has_ack(struct rdt_packet* pkt, unsigned char x) {
+    if (pkt == NULL) return -1;
+
+    return (pkt->ack_num == x) ? 1 : 0;
+}
+
+// Check if seq_num is x
+int has_seq(struct rdt_packet* pkt, unsigned char x) {
+    if (pkt == NULL) return -1;
+
+    return (pkt->seq_num == x) ? 1 : 0;
 }
