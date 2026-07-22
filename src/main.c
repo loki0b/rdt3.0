@@ -3,9 +3,11 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <stdint.h>
+#include "../include/rdt.h"
 
 int  socket_fd;
 struct sockaddr_in app_addr;
+struct sockaddr_in remote_host_addr;
 
 int main(int argc, char* argv[]) {
     int port;
