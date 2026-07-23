@@ -1,6 +1,7 @@
 #include "../include/rdt.h"
 #include "../include/defs.h"
 #include <netinet/in.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 void rdt_send(FILE* data, char* filename) {
@@ -21,6 +22,12 @@ struct rdt_packet make_packet(FILE* data) {
     struct rdt_packet pkt;
 
     size_t bytes_read = fread(pkt.data, sizeof(char), BUFFER_SIZE, data);
+
+    if (ferror(data) != 0) {
+        perror("(fread)");
+        exit(EXIT_SUCCESS);
+    }
+
     if (bytes_read > 0) {
         pkt.payload_size = bytes_read;
         pkt.is_last_chunk = feof(data) ? 1 : 0;
