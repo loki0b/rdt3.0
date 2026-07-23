@@ -14,7 +14,7 @@ struct rdt_packet {
 
 void rdt_send(FILE* data, char* filename);
 void udt_send(const struct rdt_packet*);
-void rdt_rcv(struct rdt_packet*);
+int rdt_rcv(struct rdt_packet*);
 
 struct rdt_packet make_packet(FILE* data);
 unsigned short make_checksum(unsigned char* buffer, size_t size);
@@ -25,3 +25,6 @@ int has_seq(struct rdt_packet* pkt, unsigned char x);
 
 void extract(struct rdt_packet* pkt);
 void deliver_data();
+
+int start_timer();
+int stop_timer();
