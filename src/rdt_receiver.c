@@ -59,7 +59,7 @@ int wip() {
           udt_send(&sndpkt);
 
           if (rcvpkt.is_last_chunk) is_the_last_ack_received = 1;
-          else state = WAIT_SEQ_1;
+          else state = WAIT_SEQ_0;
         }
         // Error or receive sender's retransmission
         else if (!timeout && (is_corrupt(&rcvpkt) || has_seq(&rcvpkt, 0))) {
