@@ -29,8 +29,7 @@ struct rdt_packet make_packet(FILE* data) {
 
 int rdt_rcv(struct rdt_packet* pkt) {
     int bytes_to_read;
-    struct sockaddr_in receiver_addr;
-    socklen_t receiver_addr_len;
+    socklen_t remote_addr_len;
 
     memset(pkt, 0, sizeof(*pkt));
 
@@ -39,8 +38,8 @@ int rdt_rcv(struct rdt_packet* pkt) {
         exit(EXIT_FAILURE);
     }
 
-    receiver_addr_len = sizeof(receiver_addr);
-    bytes_to_read = recvfrom(socket_fd, pkt, sizeof(struct rdt_packet), 0, (struct sockaddr*)&receiver_addr, &receiver_addr_len);
+    remote_addr_len = sizeof(remote_host_addr);
+    bytes_to_read = recvfrom(socket_fd, pkt, sizeof(struct rdt_packet), 0, (struct sockaddr*)&remote_host_addr, &remote_addr_len);
     if (bytes_to_read < 0) {
         // Timeout
         if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINPROGRESS) return 1;
