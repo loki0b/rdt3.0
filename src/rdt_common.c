@@ -27,7 +27,7 @@ struct rdt_packet make_packet(FILE* data) {
     return pkt;
 }
 
-int rdt_rcv(struct rdt_packet* pkt) {
+int udt_rcv(struct rdt_packet* pkt) {
     int bytes_to_read;
     socklen_t remote_addr_len;
 
