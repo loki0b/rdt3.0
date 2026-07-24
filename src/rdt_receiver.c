@@ -74,3 +74,11 @@ int wip() {
 
   return 1;
 }
+
+void extract(struct rdt_packet* pkt) {
+  ;
+}
+
+void deliver_data() {
+  ;
+}
