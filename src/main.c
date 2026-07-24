@@ -3,7 +3,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <stdint.h>
-#include "../include/rdt.h"
 
 int  socket_fd;
 struct sockaddr_in app_addr;
