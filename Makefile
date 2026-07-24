@@ -5,7 +5,7 @@ OUT_DIR = bin
 
 all:
 	mkdir -p $(OUT_DIR)
-	gcc $(SRC) -o $(OUT_DIR)/$(OUT)
+	gcc -Wall $(SRC) -o $(OUT_DIR)/$(OUT)
 
 run:
 	./$(OUT_DIR)/$(OUT)
