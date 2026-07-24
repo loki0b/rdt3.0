@@ -3,21 +3,27 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <stdint.h>
+#include <unistd.h>
+#include "../include/rdt_sender.h"
+#include "../include/rdt_receiver.h"
+
+#define BUFFER_SIZE 1024
 
 int  socket_fd;
 struct sockaddr_in local_host_addr;
 struct sockaddr_in remote_host_addr;
 
 int main(int argc, char* argv[]) {
-    int port;
+    int localport, remoteport;
 
     if (argc < 2) {
         fprintf(stderr, "Argument PORT is required\n");
-    } else if (argc == 2) {
-        port = atoi(argv[1]);
+    } else if (argc >= 2) {
+        localport = atoi(argv[1]);
+        remoteport = atoi(argv[2]);
 
-        if (port > UINT16_MAX) {
-            fprintf(stderr, "PORT needs to be a 16 bit number\n");
+        if ((localport < 0 || localport > UINT16_MAX) || (remoteport < 0 || remoteport > UINT16_MAX)) {
+            fprintf(stderr, "Port number must be in [0, 2^16 - 1]\n");
             exit(EXIT_FAILURE);
         }
     }
@@ -28,14 +34,41 @@ int main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    local_host_addr.sin_family = AF_INET,
+    local_host_addr.sin_family = AF_INET;
     local_host_addr.sin_addr.s_addr = htonl(INADDR_ANY), // Set dinamically
-    local_host_addr.sin_port = htons(port);
+    local_host_addr.sin_port = htons(localport);
 
     if(bind(socket_fd, (struct sockaddr*)&local_host_addr, sizeof(local_host_addr)) < 0) {
         perror("(bind)");
         exit(EXIT_FAILURE);
     }
+
+    remote_host_addr.sin_family = AF_INET;
+    remote_host_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    remote_host_addr.sin_port = htons(remoteport);
+
+    if (localport == 8000) {
+        FILE* stream = fopen("/tmp/output.txt", "wb+");
+        
+        while (1) {
+            int c;
+            while ((c = getchar()) != EOF) {
+                fputc(c, stream);
+
+                if (c == '\n') break;
+            }
+
+            rewind(stream);
+            rdt_send(stream);
+            ftruncate(fileno(stream), 0);
+        }
+        
+    } else if (localport == 3000) {
+        while (1) {
+            rdt_rcv();
+        }
+    }
+    
 
     return 0;
 }
