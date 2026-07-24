@@ -5,6 +5,7 @@ enum RDT_RECEIVER_STATE {
   WAIT_SEQ_1
 };
 
+// return 1 if error;
 int wip() {
   struct rdt_packet sndpkt;
   struct rdt_packet rcvpkt;
@@ -30,7 +31,8 @@ int wip() {
           sndpkt.checksum = make_checksum(&sndpkt, pkt_size);
           udt_send(&sndpkt);
 
-          state = WAIT_SEQ_1;
+          if (rcvpkt.is_last_chunk) is_the_last_ack_received = 1;
+          else state = WAIT_SEQ_1;
         }
         // Error or receive sender's retransmission
         else if (!timeout && (is_corrupt(&rcvpkt) || has_seq(&rcvpkt, 1))) {
@@ -56,7 +58,8 @@ int wip() {
           sndpkt.checksum = make_checksum(&sndpkt, pkt_size);
           udt_send(&sndpkt);
 
-          state = WAIT_SEQ_0;
+          if (rcvpkt.is_last_chunk) is_the_last_ack_received = 1;
+          else state = WAIT_SEQ_1;
         }
         // Error or receive sender's retransmission
         else if (!timeout && (is_corrupt(&rcvpkt) || has_seq(&rcvpkt, 0))) {
@@ -69,10 +72,9 @@ int wip() {
       }
     }
 
-    return 0;
   }
 
-  return 1;
+  return 0;
 }
 
 void extract(struct rdt_packet* pkt) {
