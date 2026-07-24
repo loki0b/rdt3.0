@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 int  socket_fd;
-struct sockaddr_in app_addr;
+struct sockaddr_in local_host_addr;
 struct sockaddr_in remote_host_addr;
 
 int main(int argc, char* argv[]) {
@@ -28,11 +28,11 @@ int main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    app_addr.sin_family = AF_INET,
-    app_addr.sin_addr.s_addr = htonl(INADDR_ANY), // Set dinamically
-    app_addr.sin_port = htons(port);
+    local_host_addr.sin_family = AF_INET,
+    local_host_addr.sin_addr.s_addr = htonl(INADDR_ANY), // Set dinamically
+    local_host_addr.sin_port = htons(port);
 
-    if(bind(socket_fd, (struct sockaddr*)&app_addr, sizeof(app_addr)) < 0) {
+    if(bind(socket_fd, (struct sockaddr*)&local_host_addr, sizeof(local_host_addr)) < 0) {
         perror("(bind)");
         exit(EXIT_FAILURE);
     }
