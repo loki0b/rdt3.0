@@ -18,39 +18,59 @@ int wip() {
     switch (state) {
       case WAIT_SEQ_0: {
         timeout = rdt_rcv(&rcvpkt);
-
-        if (timeout);
-        else if (!is_corrupt(&rcvpkt) && has_seq(&rcvpkt, 0)) {
+        sndpkt = make_packet(NULL);
+        pkt_size = sizeof(struct rdt_packet) - PKT_PAYLOAD_SIZE + sndpkt.payload_size;
+        
+        // Success
+        if (!timeout && !is_corrupt(&rcvpkt) && has_seq(&rcvpkt, 0)) {
           extract(&rcvpkt); //data
           deliver_data();
 
-          sndpkt = make_packet(NULL);
-          sndpkt.ack_num = rcvpkt.seq_num + 1;
-          pkt_size = sizeof(struct rdt_packet) - PKT_PAYLOAD_SIZE + sndpkt.payload_size;
+          sndpkt.ack_num = 0;
           sndpkt.checksum = make_checksum(&sndpkt, pkt_size);
           udt_send(&sndpkt);
 
           state = WAIT_SEQ_1;
         }
+        // Error or receive sender's retransmission
+        else if (!timeout && (is_corrupt(&rcvpkt) || has_seq(&rcvpkt, 1))) {
+          sndpkt.ack_num = 1;  
+          sndpkt.checksum = make_checksum(&sndpkt, pkt_size);
+          udt_send(&sndpkt);
+        }
+
+        break;
       }
 
       case WAIT_SEQ_1: {
         timeout = rdt_rcv(&rcvpkt);
-
-        if (timeout);
-        else if (!is_corrupt(&rcvpkt) && has_seq(&rcvpkt, 1)) {
+        sndpkt = make_packet(NULL);
+        pkt_size = sizeof(struct rdt_packet) - PKT_PAYLOAD_SIZE + sndpkt.payload_size;
+        
+        // Success
+        if (!timeout && !is_corrupt(&rcvpkt) && has_seq(&rcvpkt, 1)) {
           extract(&rcvpkt); //data
           deliver_data();
 
-          sndpkt = make_packet(NULL);
-          sndpkt.ack_num = rcvpkt.seq_num - 1;
-          pkt_size = sizeof(struct rdt_packet) - PKT_PAYLOAD_SIZE + sndpkt.payload_size;
+          sndpkt.ack_num = 1;
           sndpkt.checksum = make_checksum(&sndpkt, pkt_size);
           udt_send(&sndpkt);
 
           state = WAIT_SEQ_0;
         }
+        // Error or receive sender's retransmission
+        else if (!timeout && (is_corrupt(&rcvpkt) || has_seq(&rcvpkt, 0))) {
+          sndpkt.ack_num = 0;  
+          sndpkt.checksum = make_checksum(&sndpkt, pkt_size);
+          udt_send(&sndpkt);
+        }
+
+        break;
       }
     }
+
+    return 0;
   }
+
+  return 1;
 }
