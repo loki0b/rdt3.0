@@ -7,6 +7,24 @@ An implementation of a Reliable Data Transfer (RDT 3.0) Stop-and-Wait protocol o
 
 This project provides a reliable transport layer on top of unreliable UDP. It uses a Stop-and-Wait Finite State Machine (FSM) with alternating sequence numbers (0 and 1), socket-level timeouts for packet loss recovery, and checksum validation for bit-error detection.
 
+## Project Architecture
+```
+.
+├── include/
+│   ├── rdt_common.h      # Shared packet structures, macros, and socket declarations
+│   ├── rdt_receiver.h    # Receiver interface
+│   └── rdt_sender.h      # Sender interface
+├── src/
+│   ├── main.c            # Application entry point and UDP socket initialization
+│   ├── rdt_common.c      # Network I/O, timers, packet construction, and validation
+│   ├── rdt_receiver.c    # Receiver state machine logic
+│   └── rdt_sender.c      # Sender state machine logic
+└── Makefile              # Build congifurations
+```
+
+## Finite State Machines
+![](./docs/assets/rdt3.0_sender.png)
+![](./docs/assets/rdt3.0_receiver.png)
 
 ## Packet Structure
 
@@ -21,21 +39,6 @@ struct rdt_packet {
     unsigned char  is_last_chunk;  // EOF / terminal packet indicator (1 if last)
     unsigned char  data[1024];     // Payload buffer
 };
-```
-
-## Project Architecture
-```
-.
-├── include/
-│   ├── rdt_common.h      # Shared packet structures, macros, and socket declarations
-│   ├── rdt_receiver.h    # Receiver interface
-│   └── rdt_sender.h      # Sender interface
-├── src/
-│   ├── main.c            # Application entry point and UDP socket initialization
-│   ├── rdt_common.c      # Network I/O, timers, packet construction, and validation
-│   ├── rdt_receiver.c    # Receiver state machine logic
-│   └── rdt_sender.c      # Sender state machine logic
-└── Makefile              # Build congifurations
 ```
 
 ## Key Modules
