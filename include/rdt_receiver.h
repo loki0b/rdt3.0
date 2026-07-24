@@ -5,5 +5,6 @@
 
 void extract(struct rdt_packet* pkt);
 void deliver_data();
+int rdt_rcv();
 
 #endif

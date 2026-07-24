@@ -6,7 +6,7 @@ enum RDT_RECEIVER_STATE {
 };
 
 // return 1 if error;
-int wip() {
+int rdt_rcv() {
   struct rdt_packet sndpkt;
   struct rdt_packet rcvpkt;
   enum RDT_RECEIVER_STATE state;
@@ -18,12 +18,13 @@ int wip() {
   while (!is_the_last_ack_received) {
     switch (state) {
       case WAIT_SEQ_0: {
-        timeout = rdt_rcv(&rcvpkt);
+        timeout = udt_rcv(&rcvpkt);
         sndpkt = make_packet(NULL);
         pkt_size = sizeof(struct rdt_packet) - PKT_PAYLOAD_SIZE + sndpkt.payload_size;
         
         // Success
         if (!timeout && !is_corrupt(&rcvpkt) && has_seq(&rcvpkt, 0)) {
+          fwrite(&rcvpkt.data, 1, rcvpkt.payload_size, stdout);
           extract(&rcvpkt); //data
           deliver_data();
 
@@ -45,12 +46,13 @@ int wip() {
       }
 
       case WAIT_SEQ_1: {
-        timeout = rdt_rcv(&rcvpkt);
+        timeout = udt_rcv(&rcvpkt);
         sndpkt = make_packet(NULL);
         pkt_size = sizeof(struct rdt_packet) - PKT_PAYLOAD_SIZE + sndpkt.payload_size;
         
         // Success
         if (!timeout && !is_corrupt(&rcvpkt) && has_seq(&rcvpkt, 1)) {
+          fwrite(&rcvpkt.data, 1, rcvpkt.payload_size, stdout);
           extract(&rcvpkt); //data
           deliver_data();
 

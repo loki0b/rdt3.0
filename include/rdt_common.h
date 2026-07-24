@@ -21,7 +21,7 @@ struct rdt_packet {
 };
 
 struct rdt_packet make_packet(FILE* data);
-int rdt_rcv(struct rdt_packet* pkt);
+int udt_rcv(struct rdt_packet* pkt);
 void udt_send(const struct rdt_packet* pkt);
 unsigned short make_checksum(const struct rdt_packet* pkt, size_t size);
 int is_corrupt(struct rdt_packet* pkt);

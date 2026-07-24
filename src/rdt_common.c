@@ -99,6 +99,7 @@ int has_seq(struct rdt_packet* pkt, unsigned char x) {
 
 // Set a timer for ACK response from receiver
 // default 500ms
+// TODO: dynamic interval based on RTT: TimeoutInterval = EstimatedRTT + 4 × DevRTT
 int start_timer() {
     struct timeval time = {
         .tv_sec = 0,

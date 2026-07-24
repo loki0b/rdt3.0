@@ -31,7 +31,7 @@ int rdt_send(FILE* data) {
                 }
 
                 case WAIT_ACK_0: {
-                    timeout = rdt_rcv(&rcvpkt);
+                    timeout = udt_rcv(&rcvpkt);
                     
                     if (timeout) udt_send(&sndpkt);
                     // Check errors or sender's segment restransmission
@@ -57,7 +57,7 @@ int rdt_send(FILE* data) {
                 }
 
                 case WAIT_ACK_1: {
-                    timeout = rdt_rcv(&rcvpkt);
+                    timeout = udt_rcv(&rcvpkt);
                     
                     if (timeout) udt_send(&sndpkt);
                     // Check errors or sender's segment retransmission
