@@ -1,3 +1,4 @@
+#include <string.h>
 #include "../include/rdt_receiver.h"
 
 enum RDT_RECEIVER_STATE {
@@ -10,11 +11,12 @@ int rdt_rcv() {
   struct rdt_packet sndpkt;
   struct rdt_packet rcvpkt;
   enum RDT_RECEIVER_STATE state;
-  int is_the_last_ack_received, timeout;
+  int is_the_last_ack_received, timeout, is_fileheader_send;
   size_t pkt_size;
+  char* filename;
 
   state = WAIT_SEQ_0;
-  is_the_last_ack_received = timeout = 0;
+  is_the_last_ack_received = timeout = is_fileheader_send = 0;
   while (!is_the_last_ack_received) {
     switch (state) {
       case WAIT_SEQ_0: {
@@ -24,6 +26,11 @@ int rdt_rcv() {
         
         // Success
         if (!timeout && !is_corrupt(&rcvpkt) && has_seq(&rcvpkt, 0)) {
+          if (!is_fileheader_send) {
+            filename = strdup((char*)&rcvpkt.data);
+            is_fileheader_send = 1;
+          }
+
           fwrite(&rcvpkt.data, 1, rcvpkt.payload_size, stdout);
           extract(&rcvpkt); //data
           deliver_data();
