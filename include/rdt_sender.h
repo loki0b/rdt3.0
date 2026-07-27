@@ -4,6 +4,6 @@
 #include <stdio.h>
 #include "../include/rdt_common.h"
 
-int rdt_send(FILE* data);
+int rdt_send(FILE* data, const char* filename);
 
 #endif
