@@ -46,10 +46,11 @@ int main(int argc, char* argv[]) {
     remote_host_addr.sin_family = AF_INET;
     remote_host_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     remote_host_addr.sin_port = htons(remoteport);
-
+  
     if (localport == 8000) {
-        FILE* stream = fopen("/tmp/output.txt", "wb+");
-        
+        const char filename[] = "/tmp/output.txt";
+        FILE* stream = fopen(filename, "wb+");
+
         while (1) {
             int c;
             while ((c = getchar()) != EOF) {
@@ -59,7 +60,7 @@ int main(int argc, char* argv[]) {
             }
 
             rewind(stream);
-            rdt_send(stream);
+            rdt_send(stream, filename);
             ftruncate(fileno(stream), 0);
         }
         
