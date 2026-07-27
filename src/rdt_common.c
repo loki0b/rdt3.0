@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 #include <string.h>
 #include <errno.h>
+#include <stdint.h>
 #include "../include/rdt_common.h"
 
 struct rdt_packet make_packet(FILE* data) {
@@ -69,8 +70,31 @@ void udt_send(const struct rdt_packet* pkt) {
     }
 }
 
+/*
+* Internet Checksum RFC 1071
+*/
 unsigned short make_checksum(const struct rdt_packet* pkt, size_t size) {
-    return 0;
+    size_t bytes_left = sizeof(struct rdt_packet) - PKT_PAYLOAD_SIZE + pkt->payload_size;
+    const uint16_t* ptr = (const uint16_t*)pkt;
+    uint32_t sum  = 0;
+
+    while (bytes_left > 1) {
+        sum += *ptr++;
+
+        bytes_left -= 2;
+    }
+
+    if (bytes_left == 1) {
+        uint16_t last_byte = 0;
+        *(uint8_t*)(&last_byte)= *(const uint8_t*)ptr;
+        sum += last_byte;
+    }
+
+    while (sum >> 16) {
+        sum = (sum & 0xFFFF) + (sum >> 16);
+    }
+
+    return (unsigned short)~sum;
 }
 
 // Validate checksum
