@@ -100,11 +100,16 @@ unsigned short make_checksum(const struct rdt_packet* pkt, size_t size) {
 // Validate checksum
 int is_corrupt(struct rdt_packet* pkt) {
     if (pkt == NULL) return -1;
-    
-    size_t pkt_size = sizeof(struct rdt_packet) - PKT_PAYLOAD_SIZE + pkt->payload_size;
-    int ret = (pkt->checksum != make_checksum(pkt, pkt_size)) ? 1 : 0;
 
-    return ret;
+    uint16_t pkt_sum = pkt->checksum;
+    pkt->checksum = 0;
+
+    size_t pkt_size = sizeof(struct rdt_packet) - PKT_PAYLOAD_SIZE + pkt->payload_size;
+    uint16_t calculated_sum = make_checksum(pkt, pkt_size);
+
+    pkt->checksum = pkt_sum;
+
+    return (calculated_sum != pkt_sum) ? 1 : 0;
 }
 
 // Check if ack_num is x
