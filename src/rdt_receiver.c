@@ -65,10 +65,7 @@ int rdt_rcv() {
         // Success
         if (!timeout && !is_corrupt(&rcvpkt) && has_seq(&rcvpkt, 1)) {
           
-          // Concat data to to stream
-          if (fwrite(&rcvpkt.data, sizeof(char), rcvpkt.payload_size, file) > 0) {
-              ;
-          }
+          deliver_data(&rcvpkt, file);
 
           sndpkt.ack_num = 1;
           sndpkt.checksum = make_checksum(&sndpkt, pkt_size);
