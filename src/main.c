@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -48,22 +49,13 @@ int main(int argc, char* argv[]) {
     remote_host_addr.sin_port = htons(remoteport);
   
     if (localport == 8000) {
-        const char filename[] = "/tmp/output.txt";
-        FILE* stream = fopen(filename, "wb+");
+        const char filename[] = "/home/loki0b/eecs/projects/rdt3.0/docs/assets/rdt3.0_receiver.png";
+        int fd = open(filename, O_RDONLY);
+        FILE* stream;
+        stream = fdopen(fd, "rb");
+        rdt_send(stream, filename);
 
-        while (1) {
-            int c;
-            while ((c = getchar()) != EOF) {
-                fputc(c, stream);
-
-                if (c == '\n') break;
-            }
-
-            rewind(stream);
-            rdt_send(stream, filename);
-            ftruncate(fileno(stream), 0);
-        }
-        
+        fclose(stream);
     } else if (localport == 3000) {
         while (1) {
             rdt_rcv();
